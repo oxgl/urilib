@@ -9,5 +9,6 @@ internal class URITest {
         val u = URI.parse("http://abc.com")
 
         Assertions.assertTrue(u is URL)
+        Assertions.assertTrue(u is HttpURL)
     }
 }
