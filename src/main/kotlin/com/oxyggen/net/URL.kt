@@ -1,3 +1,4 @@
 package com.oxyggen.net
 
-open class URL : URI()
+open class URL(scheme: String, identifier: String) : URI(scheme, identifier) {
+}

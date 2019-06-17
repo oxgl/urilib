@@ -2,7 +2,10 @@ package com.oxyggen.net
 
 import kotlin.reflect.KClass
 
-open class URI {
+open class URI(scheme: String, identifier: String) {
+
+    val scheme = scheme.toLowerCase()
+
     companion object {
         val defaultSchemeHandlers = mapOf<String, KClass<out URI>>(
                 "http" to HttpURL::class,
@@ -24,11 +27,9 @@ open class URI {
             }
 
             val handlerClass = schemeHandlers[scheme]
-            val handler = if (handlerClass != null) {
-                handlerClass.constructors.first().call()
-            } else {
-                URI()
-            }
+
+            val handler = handlerClass?.constructors?.first()?.call(scheme, identifier)
+                    ?: URI(scheme, identifier)
 
             return handler
 

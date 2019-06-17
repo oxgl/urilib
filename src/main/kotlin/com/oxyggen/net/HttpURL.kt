@@ -1,3 +1,4 @@
 package com.oxyggen.net
 
-open class HttpURL : CommonURL()
+open class HttpURL(scheme: String, identifier: String) : CommonURL(scheme, identifier) {
+}
