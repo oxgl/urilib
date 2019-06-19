@@ -9,6 +9,7 @@ internal class URITest {
         val u = URI.parse("http://abc.com")
 
         println(u.scheme)
+        println(u.identifier)
         println(u::class)
 
         Assertions.assertTrue(u is URL)
