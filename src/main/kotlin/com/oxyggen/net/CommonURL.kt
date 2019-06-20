@@ -12,7 +12,7 @@ open class CommonURL(uriString: String, context: URI? = null) : URL(uriString, c
 
     val userinfo: String
     val host: String
-    val port: Int
+    val port: Int get() = if (field > 0) field else getDefaultPort()
     val path: String
     val query: String
     val fragment: String
@@ -37,7 +37,7 @@ open class CommonURL(uriString: String, context: URI? = null) : URL(uriString, c
             host = match?.groups?.get("host")?.value ?: ""
             val strPort = match?.groups?.get("port")?.value ?: ""
             port = if (strPort.isBlank()) {
-                getDefaultPort()
+                0
             } else {
                 strPort.toInt()
             }
