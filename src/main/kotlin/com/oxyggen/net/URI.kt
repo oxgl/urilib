@@ -4,34 +4,12 @@ import kotlin.reflect.KClass
 
 open class URI(uriString: String, context: URI? = null) {
 
-    open val scheme: String
-    open val identifier: String
+    val scheme: String
+    val identifier: String
+    val isRelative: Boolean
 
-    protected val uriStringIsRelative:Boolean
-
-    init {
-        val schemePattern = "^([a-z][a-z0-9+\\-.]*):".toRegex()
-        val match = schemePattern.find(uriString)
-
-        val uriStringScheme = match?.value?.substringBefore(':') ?: ""
-
-        // Initialize "is relative" variable (for parsing in subclasses)
-        uriStringIsRelative = uriStringScheme.isNullOrBlank()
-
-        scheme = uriStringScheme ?: context?.scheme ?: ""
-
-        identifier = if (uriStringScheme.isNotBlank()) {
-            uriString.substring(uriStringScheme.length + 1)
-        } else {
-            uriString
-        }
-    }
 
     /**
-     * Get scheme from URI string
-     * @param uriString The URI string
-     * @return Returns scheme or empty string
-     *
      * From https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
      * URI = scheme:[//authority]path[?query][#fragment]
      * Each URI begins with a scheme name that refers to a specification for assigning identifiers within that scheme.
@@ -40,16 +18,29 @@ open class URI(uriString: String, context: URI? = null) {
      * be used as the first path segment of a relative reference if its path component does not begin with a slash (/),
      * as it would be mistaken for a scheme component. Such a path segment must be preceded by a dot path segment (e.g., ./foo:bar).
      */
-    protected fun getSchemeFromUriString(uriString: String) = if (uriString.contains(':')) {    // Contains scheme
-        val testScheme = uriString.split(":", limit = 2).getOrElse(0, { "" }).toLowerCase()
-        if (!testScheme.contains('/')) {
-            testScheme
+
+    init {
+        val schemePattern = "^([a-z][a-z0-9+\\-.]*):".toRegex()
+        val match = schemePattern.find(uriString)
+
+        val uriStringScheme = match?.value?.substringBefore(':') ?: ""
+
+        // Initialize "is relative" variable (for parsing in subclasses)
+        isRelative = uriStringScheme.isBlank()
+
+        scheme = if (!isRelative) {
+            uriStringScheme
         } else {
-            ""
+            context?.scheme ?: ""
         }
-    } else {
-        ""
+
+        identifier = if (uriStringScheme.isNotBlank()) {
+            uriString.substring(uriStringScheme.length + 1)
+        } else {
+            uriString
+        }
     }
+
 
     companion object {
         val defaultSchemeHandlers = mapOf<String, KClass<out URI>>(
@@ -67,10 +58,11 @@ open class URI(uriString: String, context: URI? = null) {
         fun parse(uriString: String, context: URI? = null, schemeHandlers: Map<String, KClass<out URI>> = defaultSchemeHandlers): URI {
             val uri = URI(uriString, context)
 
-            val handler = schemeHandlers[uri.scheme]?.constructors?.first()?.call(uriString, context)
+            if (uri.isRelative && context == null) throw Exception("Can't handle relative uri $uriString without context!")
+
+            return schemeHandlers[uri.scheme]?.constructors?.first()?.call(uriString, context)
                     ?: uri
 
-            return handler
         }
     }
 }
