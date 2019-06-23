@@ -1,11 +1,27 @@
 package com.oxyggen.net
 
 import kotlin.reflect.KClass
+import kotlin.reflect.full.createType
+import kotlin.reflect.full.isSupertypeOf
 
-open class URI(uriString: String, context: URI? = null) {
+/*
+ * URI type hierarchy:
+ *
+ *  URI
+ *  ├── UnresolvedURI       (partial URI -> no scheme specified)
+ *  └── ResolvedURI         (full URI -> scheme & scheme specific part specified)
+ *      ├── MailtoURI (not yet implemented)
+ *      └── Context URI
+ *          └── URL
+ *              └── CommonURL
+ *                  ├── HttpURL
+ *                  └── FtpURL (not yet implemented)
+ */
+
+open class URI(uriString: String, context: ContextURI? = null) {
 
     val scheme: String
-    val identifier: String
+    val schemeSpecificPart: String
     val isRelative: Boolean
 
 
@@ -34,7 +50,7 @@ open class URI(uriString: String, context: URI? = null) {
             context?.scheme ?: ""
         }
 
-        identifier = if (uriStringScheme.isNotBlank()) {
+        schemeSpecificPart = if (uriStringScheme.isNotBlank()) {
             uriString.substring(uriStringScheme.length + 1)
         } else {
             uriString
@@ -45,7 +61,8 @@ open class URI(uriString: String, context: URI? = null) {
     companion object {
         val defaultSchemeHandlers = mapOf<String, KClass<out URI>>(
                 "http" to HttpURL::class,
-                "https" to HttpURL::class
+                "https" to HttpURL::class,
+                "" to UnresolvedURI::class
         )
 
         /**
@@ -55,13 +72,37 @@ open class URI(uriString: String, context: URI? = null) {
          * @param context URI context used when the URI string contains relative URI
          * @return Returns an URI object (or sub-object)
          */
-        fun parse(uriString: String, context: URI? = null, schemeHandlers: Map<String, KClass<out URI>> = defaultSchemeHandlers): URI {
+        fun parse(uriString: String, context: ContextURI? = null, schemeHandlers: Map<String, KClass<out URI>> = defaultSchemeHandlers): URI {
             val uri = URI(uriString, context)
 
-            if (uri.isRelative && context == null) throw Exception("Can't handle relative uri $uriString without context!")
+            val paramType1 = String::class.createType()
+            val paramType2 = ContextURI::class.createType()
 
-            return schemeHandlers[uri.scheme]?.constructors?.first()?.call(uriString, context)
-                    ?: uri
+//            if (uri.isRelative && context == null) throw Exception("Can't handle relative uri $uriString without context!")
+            val constructors = schemeHandlers[uri.scheme]?.constructors
+
+            val fullConstructor = constructors?.find {
+                it.parameters.size == 2
+                        && it.parameters[0].type.isSupertypeOf(paramType1)
+                        && it.parameters[1].type.isSupertypeOf(paramType2)
+            }
+
+            if (fullConstructor != null) {
+                return fullConstructor.call(uriString, context)
+            } else {
+                val simpleConstructor = constructors?.find {
+                    it.parameters.size == 1
+                            && it.parameters[0].type.isSupertypeOf(paramType1)
+                }
+
+                if (simpleConstructor != null) {
+                    return simpleConstructor.call(uriString)
+                } else {
+                    return uri
+                }
+
+
+            }
 
         }
     }

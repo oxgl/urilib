@@ -4,15 +4,14 @@ import java.lang.Exception
 import java.net.URLDecoder
 
 // Common URL
-open class CommonURL(uriString: String, context: URI? = null) : URL(uriString, context) {
-
-    //original: "^((?<scheme>[^:\\/?#]+):)?(\\/\\/(?<authority>((?<userinfo>[^\\/?#]*)@)?(?<host>[^\\/?#:]*)(:(?<port>[^\\/?#]*))?))?(?<path>[^?#]*)(\\?(?<query>[^#]*))?(#(?<fragment>.*))?".toRegex()
+open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriString, context) {
 
     private val pattern = "^((?<scheme>[^:/?#]+):)?(//(?<authority>((?<userinfo>[^/?#]*)@)?(?<host>[^/?#:]*)(:(?<port>[^/?#]*))?))?(?<path>[^?#]*)(\\?(?<query>[^#]*))?(#(?<fragment>.*))?".toRegex()
 
     val userinfo: String
     val host: String
-    val port: Int get() = if (field > 0) field else getDefaultPort()
+    val uriPort: Int
+    val port: Int get() = if (uriPort > 0) uriPort else getDefaultPort()
     val path: String
     val query: String
     val fragment: String
@@ -28,18 +27,23 @@ open class CommonURL(uriString: String, context: URI? = null) : URL(uriString, c
             if (context is CommonURL) {
                 userinfo = context.userinfo
                 host = context.host
-                port = context.port
+                uriPort = context.uriPort
             } else {
                 throw Exception("Can't handle relative uri $uriString without context!")
             }
         } else {
             userinfo = match?.groups?.get("userinfo")?.value ?: ""
             host = match?.groups?.get("host")?.value ?: ""
-            val strPort = match?.groups?.get("port")?.value ?: ""
-            port = if (strPort.isBlank()) {
+            val strPort = match?.groups?.get("port")?.value?.trim() ?: ""
+            val foundPort = if (strPort.isBlank()) {
                 0
             } else {
                 strPort.toInt()
+            }
+            uriPort = if (foundPort > 0) {
+                foundPort
+            } else {
+                -1
             }
         }
 
