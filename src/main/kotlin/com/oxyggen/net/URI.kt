@@ -78,7 +78,6 @@ open class URI(uriString: String, context: ContextURI? = null) {
             val paramType1 = String::class.createType()
             val paramType2 = ContextURI::class.createType()
 
-//            if (uri.isRelative && context == null) throw Exception("Can't handle relative uri $uriString without context!")
             val constructors = schemeHandlers[uri.scheme]?.constructors
 
             val fullConstructor = constructors?.find {

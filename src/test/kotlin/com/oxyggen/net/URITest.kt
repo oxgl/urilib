@@ -28,7 +28,7 @@ internal class URITest {
             Assertions.assertEquals("https", u2.scheme, "scheme")
             Assertions.assertEquals("test.user", u2.userinfo, "userinfo")
             Assertions.assertEquals("subdomain.domain.com", u2.host, "host")
-            Assertions.assertEquals(-1, u2.port, "port")
+            Assertions.assertEquals(443, u2.port, "port")
             Assertions.assertEquals("", u2.path, "path")
             Assertions.assertEquals("", u2.query, "query")
             Assertions.assertEquals("hash_value", u2.fragment, "fragment")
@@ -54,7 +54,7 @@ internal class URITest {
             Assertions.assertEquals("http", u4.scheme, "scheme")
             Assertions.assertEquals("", u4.userinfo, "userinfo")
             Assertions.assertEquals("subdomain.domain.com", u4.host, "host")
-            Assertions.assertEquals(-1, u4.port, "port")
+            Assertions.assertEquals(80, u4.port, "port")
             Assertions.assertEquals("/", u4.path, "path")
             Assertions.assertEquals("test=c d", u4.query, "query")
             Assertions.assertEquals("", u4.fragment, "fragment")
@@ -90,4 +90,5 @@ internal class URITest {
 
         Assertions.assertTrue(ur is UnresolvedURI)
     }
-}
+
+    }
