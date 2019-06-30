@@ -1,5 +1,6 @@
 package com.oxyggen.net
 
+import com.oxyggen.io.Path
 import java.lang.Exception
 import java.net.URLDecoder
 
@@ -12,7 +13,7 @@ open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriSt
     val host: String
     val uriPort: Int
     val port: Int get() = if (uriPort > 0) uriPort else getDefaultPort()
-    val path: String
+    val path: Path
     val query: String
     val fragment: String
 
@@ -47,7 +48,7 @@ open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriSt
             }
         }
 
-        path = URLDecoder.decode(match?.groups?.get("path")?.value ?: "", "UTF-8")
+        path = Path.parse(URLDecoder.decode(match?.groups?.get("path")?.value ?: "", "UTF-8"))
         query = URLDecoder.decode(match?.groups?.get("query")?.value ?: "", "UTF-8")
         fragment = URLDecoder.decode(match?.groups?.get("fragment")?.value ?: "", "UTF-8")
     }
