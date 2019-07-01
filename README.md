@@ -22,6 +22,7 @@ val p = Path.parse("/first/second/third/../fourth/myfile.html")
 ```
 
 | property          | value                                         |
+|-------------------|-----------------------------------------------|
 | p.complete        | "/first/second/third/../fourth/myfile.html"   |
 | p.file            | "myfile.html"                                 |
 | p.fileName        | "myfile"                                      |
@@ -37,6 +38,7 @@ val n = p.normalized
 ```
 
 | property          | value                                         |
+|-------------------|-----------------------------------------------|
 | p.complete        | **"/first/second/fourth/myfile.html"**        |
 | p.file            | "myfile.html"                                 |
 | p.fileName        | "myfile"                                      |
