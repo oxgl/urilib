@@ -16,7 +16,7 @@ internal class URITest {
             Assertions.assertEquals("test.user", u1.userinfo, "userinfo")
             Assertions.assertEquals("subdomain.domain.com", u1.host, "host")
             Assertions.assertEquals(8080, u1.port, "port")
-            Assertions.assertEquals("/my/path/to/file.htm", u1.path, "path")
+            Assertions.assertEquals("/my/path/to/file.htm", u1.path.full, "path")
             Assertions.assertEquals("name=u&other=z", u1.query, "query")
             Assertions.assertEquals("hash_value", u1.fragment, "fragment")
         }
@@ -29,7 +29,7 @@ internal class URITest {
             Assertions.assertEquals("test.user", u2.userinfo, "userinfo")
             Assertions.assertEquals("subdomain.domain.com", u2.host, "host")
             Assertions.assertEquals(443, u2.port, "port")
-            Assertions.assertEquals("", u2.path, "path")
+            Assertions.assertEquals("/", u2.path.full, "path")
             Assertions.assertEquals("", u2.query, "query")
             Assertions.assertEquals("hash_value", u2.fragment, "fragment")
         }
@@ -42,7 +42,7 @@ internal class URITest {
             Assertions.assertEquals("", u3.userinfo, "userinfo")
             Assertions.assertEquals("subdomain.domain.com", u3.host, "host")
             Assertions.assertEquals(81, u3.port, "port")
-            Assertions.assertEquals("", u3.path, "path")
+            Assertions.assertEquals("/", u3.path.full, "path")
             Assertions.assertEquals("test=a b", u3.query, "query")
             Assertions.assertEquals("", u3.fragment, "fragment")
         }
@@ -55,7 +55,7 @@ internal class URITest {
             Assertions.assertEquals("", u4.userinfo, "userinfo")
             Assertions.assertEquals("subdomain.domain.com", u4.host, "host")
             Assertions.assertEquals(80, u4.port, "port")
-            Assertions.assertEquals("/", u4.path, "path")
+            Assertions.assertEquals("/", u4.path.full, "path")
             Assertions.assertEquals("test=c d", u4.query, "query")
             Assertions.assertEquals("", u4.fragment, "fragment")
         }
@@ -79,7 +79,7 @@ internal class URITest {
                 Assertions.assertEquals("test.user", r.userinfo, "userinfo")
                 Assertions.assertEquals("subdomain.domain.com", r.host, "host")
                 Assertions.assertEquals(8080, r.port, "port")
-                Assertions.assertEquals("/different/path/index.htm", r.path, "path")
+                Assertions.assertEquals("/different/path/index.htm", r.path.full, "path")
                 Assertions.assertEquals("name=r", r.query, "query")
                 Assertions.assertEquals("new_hash", r.fragment, "fragment")
             }

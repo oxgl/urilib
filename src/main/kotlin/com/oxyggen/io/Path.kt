@@ -5,53 +5,68 @@ open class Path protected constructor(
         val folder: List<String>,
         val file: String,
         val isAbsolute: Boolean,
-        val delimiter: String = "/") {
+        val pathSeparator: String = "/") {
 
     companion object {
+        const val PATH_SEPARATOR = "/"
+        const val FILE_EXTENSION_SEPARATOR = "."
         const val DIRECTORY_CURRENT = "."
         const val DIRECTORY_PARENT = ".."
-        const val FILE_EXTENSION_DELIMITER = "."
 
-        fun parse(path: String, delimiter: String = "/"): Path {
-            val allParts = path.split(delimiter)
+        /**
+         * Returns a new Path object for given [path].
+         * Default [pathSeparator] is slash used in linux, URL, etc...
+         * Empty path is same as root path: "/". Relative path to current directory should be "."
+         * @return the new path object
+         */
+        fun parse(path: String, pathSeparator: String = PATH_SEPARATOR): Path {
+            var device = ""
+            var file = ""
+            var isAbsolute = false
 
-            var folderIndexFrom = 0
-            var folderIndexTo = allParts.size - 1
+            val allParts = path.split(pathSeparator).toMutableList()
 
-            // Get the first element:
-            //  if it's empty -> path begins with delimiter (/dev/sda)
-            //  if it's a device name -> windows absolute path (C:\temp)
-            val first = allParts.first()
+            if (allParts.size > 0) {
+                // Get the first element:
+                //  if it's empty -> path begins with pathSeparator (/dev/sda)
+                //  if it's a device name -> windows absolute path (C:\temp)
+                val first = allParts.first()
 
-            val device = if ("^[a-zA-Z]:".toRegex().matches(first)) first else ""
-            if (device.isNotBlank()) folderIndexFrom++
+                // If the path begins with device "C:" then remember device
+                device = if ("^[a-zA-Z]:".toRegex().matches(first)) first else ""
 
-            val isAbsolute = device.isNotBlank() || first.isBlank()
-            if (isAbsolute) folderIndexFrom++
+                // Check whether path is absolute (begins with device or blank)
+                // If it's absolute, remove the first part ("C:" or blank - folder before first slash)
+                isAbsolute = device.isNotBlank() || first.isBlank()
+                if (isAbsolute) allParts.removeAt(0)
+            }
 
+            if (allParts.size > 0) {
+                // Get the last element
+                //  it's a directory if ends with pathSeparator (/dev/)
+                //  it's a directory if it ends with "parent" (/dev/..)
+                val last = allParts.last()
 
-            // Get the last element
-            //  it's a directory if ends with delimiter (/dev/)
-            //  it's a directory if it ends with "parent" (/dev/..)
-            val last = allParts.last()
+                val containsFile = last != DIRECTORY_CURRENT && last != DIRECTORY_PARENT && last != ""
 
-            val containsFile = last != DIRECTORY_CURRENT && last != DIRECTORY_PARENT && last != ""
+                file = if (containsFile) last else ""
 
-            val file = if (containsFile) last else ""
-
-            //if (containsFile) folderIndexTo--
+                if (containsFile || last.isBlank()) {
+                    allParts.removeAt(allParts.size - 1)
+                }
+            }
 
             return Path(
                     device = device,
-                    folder = allParts.subList(folderIndexFrom, folderIndexTo),
+                    folder = allParts,
                     file = file,
                     isAbsolute = isAbsolute,
-                    delimiter = delimiter)
+                    pathSeparator = pathSeparator)
         }
     }
 
-    private fun determineNormalizedFolders(folders: List<String>, delimiter: String = "/"): List<String> {
-        var normalizedFolders = mutableListOf<String>()
+    private fun determineNormalizedFolders(folders: List<String>): List<String> {
+        val normalizedFolders = mutableListOf<String>()
 
         for (i in folders.indices)
             when (val part = folders[i]) {
@@ -61,21 +76,32 @@ open class Path protected constructor(
                     normalizedFolders.removeAt(normalizedFolders.size - 1)
                 else -> normalizedFolders.add((part))
             }
+
         return normalizedFolders
     }
 
-    open val fileName = if (file.contains(FILE_EXTENSION_DELIMITER)) file.substringBeforeLast(FILE_EXTENSION_DELIMITER) else file
+    open val fileName by lazy {
+        if (file.contains(FILE_EXTENSION_SEPARATOR)) file.substringBeforeLast(FILE_EXTENSION_SEPARATOR) else file
+    }
 
-    open val fileExtension = if (file.contains(FILE_EXTENSION_DELIMITER)) file.substringAfterLast(FILE_EXTENSION_DELIMITER) else ""
+    open val fileExtension by lazy {
+        if (file.contains(FILE_EXTENSION_SEPARATOR)) file.substringAfterLast(FILE_EXTENSION_SEPARATOR) else ""
+    }
 
-    open val directory = (if (isAbsolute) delimiter else "") + folder.joinToString(delimiter) + (if (folder.isNotEmpty()) delimiter else "")
+    open val directory by lazy {
+        (if (isAbsolute) pathSeparator else "") + folder.joinToString(pathSeparator) + (if (folder.isNotEmpty()) pathSeparator else "")
+    }
 
-    open val normalizedPath = if (this is NormalizedPath) this else NormalizedPath(device, determineNormalizedFolders(folder, delimiter), file, isAbsolute, delimiter)
+    open val full by lazy {
+        device + directory + file
+    }
 
-    open val full = device + directory + file
+    open val normalized by lazy {
+        if (this is NormalizedPath) this else NormalizedPath(device, determineNormalizedFolders(folder), file, isAbsolute, pathSeparator)
+    }
 
-    fun resolve(anotherPath: Path): Path =
-            if (anotherPath.isAbsolute || anotherPath.delimiter != delimiter) {
+    open fun resolve(anotherPath: Path): Path =
+            if (anotherPath.isAbsolute || anotherPath.pathSeparator != pathSeparator) {
                 anotherPath
             } else {
                 Path(
@@ -83,46 +109,24 @@ open class Path protected constructor(
                         folder = this.folder + anotherPath.folder,
                         file = anotherPath.file,
                         isAbsolute = this.isAbsolute,
-                        delimiter = this.delimiter)
+                        pathSeparator = this.pathSeparator)
             }
 
-    fun resolve(anotherPath: String) = resolve(parse(anotherPath))
+    open fun resolve(anotherPath: String) = resolve(parse(anotherPath))
 
-    fun resolveNormalized(anotherPath: Path): NormalizedPath = resolve(anotherPath).normalizedPath
+    open fun resolveNormalized(anotherPath: Path): NormalizedPath = resolve(anotherPath).normalized
 
-    fun resolveNormalized(anotherPath: String) = resolveNormalized(parse(anotherPath))
+    open fun resolveNormalized(anotherPath: String) = resolveNormalized(parse(anotherPath))
 
+    private val fullHashCode: Int by lazy { full.hashCode() }
 
-/*
-    val path = parts.joinToString(delimiter.toString())
+    override fun hashCode(): Int = fullHashCode
 
-    val normalizedParts by lazy { determineNormalizedParts(parts, delimiter) }
-
-    val normalized = normalizedParts.joinToString(delimiter.toString())
-
-    val filename = normalizedParts.last()
-
-    val hasFilename = filename.isNotBlank()
-
-    val directory = if (pathString.endsWith(delimiter)) {
-        pathString
-    } else {
-        pathString.substringBeforeLast(delimiter) + delimiter
-    }
-
-    val isAbsolute = pathString.startsWith(delimiter)
-
-    val isRelative = !isAbsolute
-
-    fun resolve(anotherPath: Path): Path =
-            if (anotherPath.isAbsolute || anotherPath.delimiter != delimiter) {
-                anotherPath
+    override fun equals(other: Any?): Boolean =
+            if (other is Path) {
+                other.hashCode() == this.hashCode() && other.full == this.full
             } else {
-                Path(pathParts = determineNormalizedParts(this.parts + anotherPath.parts), delimiter = delimiter)
+                false
             }
-
-    fun resolve(anotherPathString: String) = resolve(Path(anotherPathString, delimiter = this.delimiter))
-    */
-
 
 }

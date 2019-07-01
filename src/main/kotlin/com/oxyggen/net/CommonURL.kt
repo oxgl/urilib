@@ -19,7 +19,6 @@ open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriSt
 
     protected open fun getDefaultPort() = -1
 
-
     init {
 
         val match = pattern.matchEntire(uriString)

@@ -2,18 +2,19 @@ package com.oxyggen.io
 
 import com.oxyggen.io.Path
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
 
 internal class PathTest {
     @Test
     fun `Path normaization test`() {
-        Assertions.assertEquals("/first/second/", Path.parse("/first/second/third/../fourth").normalizedPath.directory)
-        Assertions.assertEquals("/first/second/fourth/", Path.parse("/first/second/third/../fourth/").normalizedPath.directory)
-        Assertions.assertEquals("./first/second/fourth/", Path.parse("./first/second/third/../fourth/").normalizedPath.directory)
-        Assertions.assertEquals("./first/second/fourth/", Path.parse("./first/second/third/../fourth/.").normalizedPath.directory)
-        Assertions.assertEquals("./a/c/", Path.parse("./../a/b/../c/./d.html").normalizedPath.directory)
-        Assertions.assertEquals("/", Path.parse("/").normalizedPath.directory)
-        Assertions.assertEquals("./dev/", Path.parse("./dev/").normalizedPath.directory)
+        Assertions.assertEquals("/first/second/", Path.parse("/first/second/third/../fourth").normalized.directory)
+        Assertions.assertEquals("/first/second/fourth/", Path.parse("/first/second/third/../fourth/").normalized.directory)
+        Assertions.assertEquals("./first/second/fourth/", Path.parse("./first/second/third/../fourth/").normalized.directory)
+        Assertions.assertEquals("./first/second/fourth/", Path.parse("./first/second/third/../fourth/.").normalized.directory)
+        Assertions.assertEquals("./a/c/", Path.parse("./../a/b/../c/./d.html").normalized.directory)
+        Assertions.assertEquals("/", Path.parse("/").normalized.directory)
+        Assertions.assertEquals("./dev/", Path.parse("./dev/").normalized.directory)
     }
 
     @Test
@@ -30,7 +31,7 @@ internal class PathTest {
         Assertions.assertEquals("/first/second/third/../", Path.parse("/first/second/third/../fourth").directory)
         Assertions.assertEquals("/first/second/third/../fourth/", Path.parse("/first/second/third/../fourth/").directory)
         Assertions.assertEquals("./first/second/third/../fourth/", Path.parse("./first/second/third/../fourth/").directory)
-        Assertions.assertEquals("./first/second/third/../fourth/", Path.parse("./first/second/third/../fourth/.").directory)
+        Assertions.assertEquals("./first/second/third/../fourth/./", Path.parse("./first/second/third/../fourth/.").directory)
         Assertions.assertEquals("/../a/b/../c/./", Path.parse("/../a/b/../c/./d.html").directory)
     }
 
@@ -38,11 +39,23 @@ internal class PathTest {
     fun `Path resolving test`() {
         val basePath = Path.parse("/../a/b/../c/./abc.htm")
 
-        Assertions.assertEquals("/a/c/abc.htm", basePath.normalizedPath.full)
-        Assertions.assertEquals("/a/c/def.htm", basePath.resolve("./def.htm").normalizedPath.full)
-        Assertions.assertEquals("/a/x1.htm", basePath.resolve("../x1.htm").normalizedPath.full)
-        Assertions.assertEquals("/x2.htm", basePath.resolve("/x2.htm").normalizedPath.full)
+        Assertions.assertEquals("/a/c/abc.htm", basePath.normalized.full)
+        Assertions.assertEquals("/a/c/def.htm", basePath.resolve("./def.htm").normalized.full)
+        Assertions.assertEquals("/a/x1.htm", basePath.resolve("../x1.htm").normalized.full)
+        Assertions.assertEquals("/x2.htm", basePath.resolve("/x2.htm").normalized.full)
+    }
 
+    @Test
+    fun `Hash code test`() {
+        Assertions.assertTrue(Path.parse("/test/abc/").equals(Path.parse("/test/abc/")))
+        Assertions.assertTrue(Path.parse("/test/abc/.").normalized.equals(Path.parse("/test/abc/").normalized))
+    }
+
+    fun `Path attributes`() {
+        val p1 = Path.parse("/")
+        Assertions.assertTrue(p1.isAbsolute)
+        Assertions.assertEquals("/", p1.full)
+        Assertions.assertEquals("/", p1.directory)
     }
 
 }
