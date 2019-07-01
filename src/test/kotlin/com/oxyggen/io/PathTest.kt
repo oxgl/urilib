@@ -1,8 +1,6 @@
 package com.oxyggen.io
 
-import com.oxyggen.io.Path
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
 
 internal class PathTest {
@@ -20,6 +18,7 @@ internal class PathTest {
     @Test
     fun `Path filename test`() {
         Assertions.assertEquals("fourth", Path.parse("/first/second/third/../fourth").file)
+        Assertions.assertEquals("", Path.parse("/first/second/third/../fourth/").file)
         Assertions.assertEquals("", Path.parse("/first/second/third/../fourth/").file)
         Assertions.assertEquals("", Path.parse("./first/second/third/../fourth/").file)
         Assertions.assertEquals("", Path.parse("./first/second/third/../fourth/.").file)
@@ -39,10 +38,10 @@ internal class PathTest {
     fun `Path resolving test`() {
         val basePath = Path.parse("/../a/b/../c/./abc.htm")
 
-        Assertions.assertEquals("/a/c/abc.htm", basePath.normalized.full)
-        Assertions.assertEquals("/a/c/def.htm", basePath.resolve("./def.htm").normalized.full)
-        Assertions.assertEquals("/a/x1.htm", basePath.resolve("../x1.htm").normalized.full)
-        Assertions.assertEquals("/x2.htm", basePath.resolve("/x2.htm").normalized.full)
+        Assertions.assertEquals("/a/c/abc.htm", basePath.normalized.complete)
+        Assertions.assertEquals("/a/c/def.htm", basePath.resolve("./def.htm").normalized.complete)
+        Assertions.assertEquals("/a/x1.htm", basePath.resolve("../x1.htm").normalized.complete)
+        Assertions.assertEquals("/x2.htm", basePath.resolve("/x2.htm").normalized.complete)
     }
 
     @Test
@@ -54,7 +53,7 @@ internal class PathTest {
     fun `Path attributes`() {
         val p1 = Path.parse("/")
         Assertions.assertTrue(p1.isAbsolute)
-        Assertions.assertEquals("/", p1.full)
+        Assertions.assertEquals("/", p1.complete)
         Assertions.assertEquals("/", p1.directory)
     }
 

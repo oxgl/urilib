@@ -92,7 +92,7 @@ open class Path protected constructor(
         (if (isAbsolute) pathSeparator else "") + folder.joinToString(pathSeparator) + (if (folder.isNotEmpty()) pathSeparator else "")
     }
 
-    open val full by lazy {
+    open val complete by lazy {
         device + directory + file
     }
 
@@ -118,13 +118,13 @@ open class Path protected constructor(
 
     open fun resolveNormalized(anotherPath: String) = resolveNormalized(parse(anotherPath))
 
-    private val fullHashCode: Int by lazy { full.hashCode() }
+    private val fullHashCode: Int by lazy { complete.hashCode() }
 
     override fun hashCode(): Int = fullHashCode
 
     override fun equals(other: Any?): Boolean =
             if (other is Path) {
-                other.hashCode() == this.hashCode() && other.full == this.full
+                other.hashCode() == this.hashCode() && other.complete == this.complete
             } else {
                 false
             }

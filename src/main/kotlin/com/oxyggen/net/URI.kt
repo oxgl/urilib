@@ -9,7 +9,7 @@ import kotlin.reflect.full.isSupertypeOf
  *
  *  URI
  *  ├── UnresolvedURI       (partial URI -> no scheme specified)
- *  └── ResolvedURI         (full URI -> scheme & scheme specific part specified)
+ *  └── ResolvedURI         (complete URI -> scheme & scheme specific part specified)
  *      ├── MailtoURI (not yet implemented)
  *      └── Context URI
  *          └── URL
