@@ -28,8 +28,6 @@ val p = Path.parse("/first/second/third/../fourth/myfile.html")
 | p.fileName        | "myfile"                                      |
 | p.fileExtension   | "html"                                        |
 | p.directory       | "/first/second/third/../fourth/"              |
-| p.isAbsolute      | true                                          |
-| p.device          | ""                                            |
 
 
 Let's normalize this path and check the values:
@@ -39,20 +37,47 @@ val n = p.normalized
 
 | property          | value                                         |
 |-------------------|-----------------------------------------------|
-| p.complete        | **"/first/second/fourth/myfile.html"**        |
-| p.file            | "myfile.html"                                 |
-| p.fileName        | "myfile"                                      |
-| p.fileExtension   | "html"                                        |
-| p.directory       | **"/first/second/fourth/"**                   |
-| p.isAbsolute      | true                                          |
-| p.device          | ""                                            |
+| n.complete        | **"/first/second/fourth/myfile.html"**        |
+| n.file            | "myfile.html"                                 |
+| n.fileName        | "myfile"                                      |
+| n.fileExtension   | "html"                                        |
+| n.directory       | **"/first/second/fourth/"**                   |
 
 Normalized path is a subclass of `Path`, so it's easy to check whether path object is normalized:
 ```
 if (p is NormalizedPath) ...
 ``` 
 This does not mean that Path object can't contain normalized path, but you can be
-sure that NormalizedPath object **must** contain normalized path. 
+sure that NormalizedPath object **must** contain normalized path.
+
+You can also resolve relative paths. Let's create relative path and resolve it (to absolute)
+using the original path `p`
+```
+val r = Path.parse("../anotherfile.html")
+val a = p.resolve(r)
+```
+Result:
+
+| property          | value                                                 |
+|-------------------|-------------------------------------------------------|
+| a.complete        | "/first/second/third/../fourth/../anotherfile.php"    |
+| a.file            | "anotherfile.php"                                     |
+| a.fileName        | "anotherfile"                                         |
+| a.fileExtension   | "php"                                                 |
+| a.directory       | "/first/second/third/../fourth/../"                   |
+
+Normalized:
+```
+val an = a.normalized
+```
+| property          | value                                                 |
+|-------------------|-------------------------------------------------------|
+| an.complete       | "/first/second/anotherfile.php"                       |
+| an.file           | "anotherfile.php"                                     |
+| an.fileName       | "anotherfile"                                         |
+| an.fileExtension  | "php"                                                 |
+| an.directory      | "/first/second/"                                      |
+
 
 Library was primarily created for **c4k** web crawling framework, but it's a standalone library...
 
