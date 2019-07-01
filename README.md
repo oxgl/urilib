@@ -50,33 +50,23 @@ if (p is NormalizedPath) ...
 This does not mean that Path object can't contain normalized path, but you can be
 sure that NormalizedPath object **must** contain normalized path.
 
-You can also resolve relative paths. Let's create relative path and resolve it (to absolute)
-using the original path `p`
+You can also resolve relative paths. Let's create relative `r` path and 
+resolve it to absolute `a` using the original path `p`. Check also the normalized
+values from `a` (`a.normalized`):
 ```
 val r = Path.parse("../anotherfile.html")
 val a = p.resolve(r)
 ```
 Result:
 
-| property          | value                                                 |
-|-------------------|-------------------------------------------------------|
-| a.complete        | "/first/second/third/../fourth/../anotherfile.php"    |
-| a.file            | "anotherfile.php"                                     |
-| a.fileName        | "anotherfile"                                         |
-| a.fileExtension   | "php"                                                 |
-| a.directory       | "/first/second/third/../fourth/../"                   |
+| property        | a.(property)                                          | a.normalized.(property)
+|-----------------|-------------------------------------------------------|-------------------------------------------------------|                                                                           
+| complete        | "/first/second/third/../fourth/../anotherfile.php"    | "/first/second/anotherfile.php"                       |
+| file            | "anotherfile.php"                                     | "anotherfile.php"                                     |
+| fileName        | "anotherfile"                                         | "anotherfile"                                         |
+| fileExtension   | "php"                                                 | "php"                                                 |
+| directory       | "/first/second/third/../fourth/../"                   | "/first/second/"                                      |
 
-Normalized:
-```
-val an = a.normalized
-```
-| property          | value                                                 |
-|-------------------|-------------------------------------------------------|
-| an.complete       | "/first/second/anotherfile.php"                       |
-| an.file           | "anotherfile.php"                                     |
-| an.fileName       | "anotherfile"                                         |
-| an.fileExtension  | "php"                                                 |
-| an.directory      | "/first/second/"                                      |
 
 
 Library was primarily created for **c4k** web crawling framework, but it's a standalone library...
