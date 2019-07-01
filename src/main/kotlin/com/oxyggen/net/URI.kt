@@ -1,7 +1,5 @@
 package com.oxyggen.net
 
-import java.net.URLDecoder
-import java.nio.charset.Charset
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSupertypeOf
@@ -103,6 +101,20 @@ open class URI(uriString: String, context: ContextURI? = null) {
             }
         }
 
+        private fun byteToHex(b: Byte): String {
+            // I know... UByte, but it's still experimental (kotlin 1.3.40)
+            val code = b.toInt()
+            val fixedCode = if (code > 0) code else 256 + code
+            return fixedCode.toString(16).toUpperCase().padStart(2, '0')
+        }
+
+        private fun hexToByte(h: String): Byte {
+            val fixedHex = h.padStart(2, '0').takeLast(2)
+            val code = fixedHex.toInt(16)
+            val fixedCode = if (code < 0) 256 + code else code
+            return fixedCode.toByte()
+        }
+
         fun percentEncode(decoded: String): String {
             var result = ""
             for (ch in decoded.asSequence()) {
@@ -120,14 +132,8 @@ open class URI(uriString: String, context: ContextURI? = null) {
 
                     else -> {              // others                    => convert to UTF-8 hex code
                         val bytes = ch.toString().toByteArray(Charsets.UTF_8)
-
-                        for (byte in bytes) {
-                            // I know... UByte, but it's still experimental (kotlin 1.3.40)
-                            val code = byte.toInt()
-                            val fixedCode = if (code > 0) code else 256 + code
-                            val hex = fixedCode.toString(16).toUpperCase().padStart(2, '0')
-                            result += "%" + hex.takeLast(2)
-                        }
+                        for (byte in bytes)
+                            result += "%" + byteToHex(byte)
                     }
                 }
             }
@@ -135,7 +141,26 @@ open class URI(uriString: String, context: ContextURI? = null) {
         }
 
         fun percentDecode(encoded: String): String {
-            return URLDecoder.decode(encoded, "UTF-8")
+            var byteResult = byteArrayOf()
+            var index = 0
+            while (index < encoded.length) {
+                val ch = encoded[index]
+                when (ch) {
+                    '+' -> {
+                        byteResult += ' '.toByte()
+                        index++
+                    }
+                    '%' -> {
+                        byteResult += hexToByte(encoded.substring(index + 1, index + 3))
+                        index += 3
+                    }
+                    else -> {
+                        byteResult += ch.toByte()
+                        index++
+                    }
+                }
+            }
+            return byteResult.toString(Charsets.UTF_8)
         }
     }
 

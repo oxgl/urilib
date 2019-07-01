@@ -1,7 +1,6 @@
 package com.oxyggen.net
 
 import com.oxyggen.io.Path
-import java.lang.Exception
 
 // Common URL
 open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriString, context) {
