@@ -1,5 +1,7 @@
 package com.oxyggen.net
 
+import java.net.URLDecoder
+import java.nio.charset.Charset
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSupertypeOf
@@ -23,7 +25,6 @@ open class URI(uriString: String, context: ContextURI? = null) {
     val scheme: String
     val schemeSpecificPart: String
     val isRelative: Boolean
-
 
     /**
      * From https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
@@ -99,10 +100,44 @@ open class URI(uriString: String, context: ContextURI? = null) {
                 } else {
                     return uri
                 }
-
-
             }
+        }
 
+        fun percentEncode(decoded: String): String {
+            var result = ""
+            for (ch in decoded.asSequence()) {
+                when (ch) {
+                    in 'A'..'Z',            // A..Z, a..z, 0..9         => append
+                    in 'a'..'z',
+                    in '0'..'9' -> result += ch
+
+                    '-', '_',               // not reserved             => simply append
+                    '.', '!',
+                    '~', '*',
+                    '\'', '(', ')' -> result += ch
+
+                    ' ' -> result += '+'   // space                     => convert to '+'
+
+                    else -> {              // others                    => convert to UTF-8 hex code
+                        val bytes = ch.toString().toByteArray(Charsets.UTF_8)
+
+                        for (byte in bytes) {
+                            // I know... UByte, but it's still experimental (kotlin 1.3.40)
+                            val code = byte.toInt()
+                            val fixedCode = if (code > 0) code else 256 + code
+                            val hex = fixedCode.toString(16).toUpperCase().padStart(2, '0')
+                            result += "%" + hex.takeLast(2)
+                        }
+                    }
+                }
+            }
+            return result
+        }
+
+        fun percentDecode(encoded: String): String {
+            return URLDecoder.decode(encoded, "UTF-8")
         }
     }
+
+
 }

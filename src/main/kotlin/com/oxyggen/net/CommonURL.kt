@@ -2,7 +2,6 @@ package com.oxyggen.net
 
 import com.oxyggen.io.Path
 import java.lang.Exception
-import java.net.URLDecoder
 
 // Common URL
 open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriString, context) {
@@ -47,9 +46,9 @@ open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriSt
             }
         }
 
-        path = Path.parse(URLDecoder.decode(match?.groups?.get("path")?.value ?: "", "UTF-8"))
-        query = URLDecoder.decode(match?.groups?.get("query")?.value ?: "", "UTF-8")
-        fragment = URLDecoder.decode(match?.groups?.get("fragment")?.value ?: "", "UTF-8")
+        path = Path.parse(percentDecode(match?.groups?.get("path")?.value ?: ""))
+        query = percentDecode(match?.groups?.get("query")?.value ?: "")
+        fragment = percentDecode(match?.groups?.get("fragment")?.value ?: "")
     }
 
 }

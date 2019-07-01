@@ -91,4 +91,9 @@ internal class URITest {
         Assertions.assertTrue(ur is UnresolvedURI)
     }
 
+    @Test
+    fun `URL encoding test`() {
+        println(URI.percentEncode("hdÁoÖüÜűéjd:sbac"))
     }
+
+}

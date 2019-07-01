@@ -1,6 +1,7 @@
 # UriLib by Oxyggen
-
-Path and URI parsing library for Kotlin. The path parsing part is (probably) finished. 
+Path and URI (URL) parsing library for Kotlin by Oxyggen. 
+## Paths
+The path parsing part is (probably) finished. 
 To create a Path object call the Path.parse method:
 ```
 val p = Path.parse("/first/second/third/../fourth/")
@@ -72,6 +73,8 @@ Result:
 | fileName        | "anotherfile"                                         | "anotherfile"                                         |
 | fileExtension   | "php"                                                 | "php"                                                 |
 | directory       | "/first/second/third/../fourth/../"                   | "/first/second/"                                      |
+
+## URI and URL...
 
 
 
