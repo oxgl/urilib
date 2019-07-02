@@ -93,7 +93,7 @@ internal class URITest {
 
     @Test
     fun `URL encoding test`() {
-        val original = "hd_ÁÖüÜűé_€_ह_¢_!%abc!"
+        val original = "hd_ÁÖüÜűé_€_ह_¢_!%abc!a"
         println(original)
         val encoded = URI.percentEncode(original)
         println(encoded)
