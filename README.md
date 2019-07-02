@@ -13,13 +13,16 @@ Set value `"\\"` if you want to parse Windows style paths:
 val w = Path.parse("C:\\temp\\abc.txt", pathSeparator = "\\")
 ```
 
-Because it is design to parse URL paths few simple rules are used:
+Because it is designed to parse URL paths few simple few simple rules were introduced:
 1) directory is the substring before last separator and file is the substring after 
-last separator- I had to introduce this rule because it's not possible to check whether given 
-path points to file or directory in case of URL. Always add separator at the end, if the
-path points to directory!
+last separator
 2) path `""` is the same as `"/"`
 3) file name and extension separator is `"."` 
+
+I had to introduce rules 1) and 3) because these are not real or local paths, so it's 
+not possible to check whether given path points to a file or a directory. 
+Always add a separator at the end, if the path points to directory! So `/dev/etc/` is directory
+but `/dev/etc` is file.
  
 ### Examples
 #### Parsing
