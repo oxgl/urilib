@@ -1,4 +1,4 @@
-# UriLib by Oxyggen
+# urilib by Oxyggen
 Path and URI (URL) parsing library for Kotlin by Oxyggen. 
 ## Paths
 The path parsing part is (probably) finished. 
