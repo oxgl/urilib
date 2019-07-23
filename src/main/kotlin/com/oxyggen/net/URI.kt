@@ -10,7 +10,7 @@ import kotlin.reflect.full.isSupertypeOf
  *  URI
  *  ├── UnresolvedURI       (partial URI -> no scheme specified)
  *  └── ResolvedURI         (complete URI -> scheme & scheme specific part specified)
- *      ├── MailtoURI (not yet implemented)
+ *      ├── MailtoURI       (implemented, but not complete)
  *      └── Context URI
  *          └── URL
  *              └── CommonURL
@@ -61,6 +61,7 @@ open class URI(uriString: String, context: ContextURI? = null) {
         val defaultSchemeHandlers = mapOf<String, KClass<out URI>>(
                 "http" to HttpURL::class,
                 "https" to HttpURL::class,
+                "mailto" to MailtoURI::class,
                 "" to UnresolvedURI::class
         )
 

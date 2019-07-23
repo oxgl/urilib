@@ -101,4 +101,10 @@ internal class URITest {
         Assertions.assertEquals(original, decoded)
     }
 
+    @Test
+    fun `Mailto parsing`() {
+        val m = URI.parse("mailto:test@abc.com")
+        Assertions.assertTrue(m is MailtoURI)
+    }
+
 }
