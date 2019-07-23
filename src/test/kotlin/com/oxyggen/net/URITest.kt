@@ -83,12 +83,26 @@ internal class URITest {
                 Assertions.assertEquals("name=r", r.query, "query")
                 Assertions.assertEquals("new_hash", r.fragment, "fragment")
             }
-
         }
 
-        val ur = URI.parse("/different/path.htm")
+        val ur = URI.parse("/different/path.htm?param=x1")
 
         Assertions.assertTrue(ur is UnresolvedURI)
+
+        if (u is ContextURI) {
+            val u2 = u.resolve(ur)
+
+            Assertions.assertTrue(u2 is CommonURL)
+
+            if (u2 is CommonURL) {
+                Assertions.assertEquals("https", u2.scheme, "scheme")
+                Assertions.assertEquals("test.user", u2.userinfo, "userinfo")
+                Assertions.assertEquals("subdomain.domain.com", u2.host, "host")
+                Assertions.assertEquals(8080, u2.port, "port")
+                Assertions.assertEquals("/different/path.htm", u2.path.complete, "path")
+                Assertions.assertEquals("param=x1", u2.query, "query")
+            }
+        }
     }
 
     @Test
@@ -103,8 +117,21 @@ internal class URITest {
 
     @Test
     fun `Mailto parsing`() {
+        val u = URI.parse("https://test.user@subdomain.domain.com:8080/my/path/to/file.htm?name=u&other=z#hash_value")
+
+        println(u)
+
         val m = URI.parse("mailto:test@abc.com")
         Assertions.assertTrue(m is MailtoURI)
+
+        if (u is ContextURI) {
+            val m2 = u.resolve(m)
+
+            Assertions.assertEquals(m,  m2)
+
+            println(m2.toString())
+        }
+
     }
 
 }

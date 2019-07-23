@@ -56,6 +56,15 @@ open class URI(uriString: String, context: ContextURI? = null) {
         }
     }
 
+    override fun toString(): String {
+        val objectName = super.toString()
+
+        if (isRelative)
+            return "$objectName ($schemeSpecificPart)"
+        else
+            return "$objectName ($scheme:$schemeSpecificPart)"
+    }
+
 
     companion object {
         val defaultSchemeHandlers = mapOf<String, KClass<out URI>>(

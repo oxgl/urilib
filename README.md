@@ -80,8 +80,35 @@ Result:
 ## URI and URL...
 
 
-
 Library was primarily created for **c4k** web crawling framework, but it's a standalone library...
+To parse URI and create URI object call method:
+```
+ val u = URI.parse("http://test.com")
+```
+This is the type hierarchy:
+```
+ URI
+ ├── UnresolvedURI       (partial URI -> no scheme specified)
+ └── ResolvedURI         (complete URI -> scheme & scheme specific part specified)
+     ├── MailtoURI       (implemented, but not complete)
+     └── ContextURI
+         └── URL
+             └── CommonURL
+                 ├── HttpURL
+                 └── FtpURL (not yet implemented)
+```
 
+As you can see the URI has 2 subclasses: UnresolvedURI and ResolvedURI. The UnresolvedURI 
+is a relative URI, which is not complete. It can be resolved in a context, so each subclass
+of the class ContextURI implements a method parse. Using this method you can convert
+an UnresolvedURI to ResolvedURI (the runtime class will be for example HttpURL).
 
-... and I almost forgot: I'm new to Kotlin :) 
+After parsing you can test the uri type:
+```
+ val u = URI.parse("http://test.com")
+ if (u is HttpURL) {
+    ...
+ }
+```
+
+oxgl
