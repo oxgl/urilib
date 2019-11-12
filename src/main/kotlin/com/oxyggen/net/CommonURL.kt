@@ -50,4 +50,37 @@ open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriSt
         fragment = percentDecode(match?.groups?.get("fragment")?.value ?: "")
     }
 
+    open fun toNormalizedUriString(): String {
+        // Scheme
+        var result = "$scheme://"
+
+        // User info (if exists)
+        if (userinfo.isNotEmpty()) result += "$userinfo@"
+
+        // Host (always)
+        result += host
+
+        // Port only when it's not the defualt port
+        if (getDefaultPort() != port)
+            result += ":$port"
+
+        // Normalized path
+        result += path.normalized.complete
+
+        // Query
+        if (query.isNotEmpty())
+            result += "?$query"
+
+        // Fragment
+        if (fragment.isNotEmpty())
+            result += "#$fragment"
+
+        return result
+    }
+
+    open val normalized: CommonURL by lazy {
+        parse(toNormalizedUriString()) as CommonURL
+    }
+
+
 }

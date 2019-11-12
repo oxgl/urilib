@@ -65,6 +65,12 @@ open class URI(uriString: String, context: ContextURI? = null) {
             return "$objectName ($scheme:$schemeSpecificPart)"
     }
 
+    open fun toUriString() =
+            if (isRelative) {
+                schemeSpecificPart
+            } else {
+                "$scheme:$schemeSpecificPart)"
+            }
 
     companion object {
         val defaultSchemeHandlers = mapOf<String, KClass<out URI>>(
@@ -173,6 +179,4 @@ open class URI(uriString: String, context: ContextURI? = null) {
             return byteResult.toString(Charsets.UTF_8)
         }
     }
-
-
 }

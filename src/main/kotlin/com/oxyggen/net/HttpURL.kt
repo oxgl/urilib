@@ -5,4 +5,5 @@ open class HttpURL(uriString: String, context: ContextURI? = null) : CommonURL(u
         "https" -> 443
         else -> 80
     }
+
 }

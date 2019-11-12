@@ -1,5 +1,11 @@
 package com.oxyggen.io
 
+/**
+ * Path object
+ *
+ * This class defines the path object. Use method *parse* to to convert string
+ * to Path object.
+ */
 open class Path protected constructor(
         val device: String,
         val folder: List<String>,
@@ -18,7 +24,7 @@ open class Path protected constructor(
          * Default [pathSeparator] is slash used in linux, URL, etc...
          * Empty path is same as root path: "/". Relative path to current directory should be "."
          * @return the new path object
-         */
+         **/
         fun parse(path: String, pathSeparator: String = PATH_SEPARATOR): Path {
             var device = ""
             var file = ""
@@ -80,26 +86,46 @@ open class Path protected constructor(
         return normalizedFolders
     }
 
+    /**
+     * The filename without extension
+     **/
     open val fileName by lazy {
         if (file.contains(FILE_EXTENSION_SEPARATOR)) file.substringBeforeLast(FILE_EXTENSION_SEPARATOR) else file
     }
 
+    /**
+     * The file extension
+     **/
     open val fileExtension by lazy {
         if (file.contains(FILE_EXTENSION_SEPARATOR)) file.substringAfterLast(FILE_EXTENSION_SEPARATOR) else ""
     }
 
+    /**
+     * The directory name
+     **/
     open val directory by lazy {
         (if (isAbsolute) pathSeparator else "") + folder.joinToString(pathSeparator) + (if (folder.isNotEmpty()) pathSeparator else "")
     }
 
+    /**
+     * Directory & filename
+     **/
     open val complete by lazy {
         device + directory + file
     }
 
+    /**
+     * The normalized path
+     **/
     open val normalized by lazy {
         if (this is NormalizedPath) this else NormalizedPath(device, determineNormalizedFolders(folder), file, isAbsolute, pathSeparator)
     }
 
+    /**
+     * Resolve path within current context
+     * @param anotherPath another path object
+     * @return the resolved path
+     **/
     open fun resolve(anotherPath: Path): Path =
             if (anotherPath.isAbsolute || anotherPath.pathSeparator != pathSeparator) {
                 anotherPath
@@ -112,16 +138,43 @@ open class Path protected constructor(
                         pathSeparator = this.pathSeparator)
             }
 
+
+    /**
+     * Resolve path within current context
+     * @param anotherPath another path string
+     * @return the resolved path
+     **/
     open fun resolve(anotherPath: String) = resolve(parse(anotherPath))
 
+
+    /**
+     * Resolve path within current context and normalize the new path
+     * @param anotherPath another path object
+     * @return the resolved normalized path
+     **/
     open fun resolveNormalized(anotherPath: Path): NormalizedPath = resolve(anotherPath).normalized
 
+
+    /**
+     * Resolve path within current context and normalize the new path
+     * @param anotherPath another path string
+     * @return the resolved normalized path
+     **/
     open fun resolveNormalized(anotherPath: String) = resolveNormalized(parse(anotherPath))
 
     private val fullHashCode: Int by lazy { complete.hashCode() }
 
+
+    /**
+     * Return hash code for the path
+     * @return hash code
+     **/
     override fun hashCode(): Int = fullHashCode
 
+    /**
+     * Check whether the path is same as another path
+     * @return true if it's same path
+     **/
     override fun equals(other: Any?): Boolean =
             if (other is Path) {
                 other.hashCode() == this.hashCode() && other.complete == this.complete

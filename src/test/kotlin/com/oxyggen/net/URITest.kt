@@ -7,7 +7,7 @@ internal class URITest {
     @Test
     fun `Absolute URL parsing`() {
 
-        val u1 = URI.parse("https://test.user@subdomain.domain.com:8080/my/path/to/file.htm?name=u&other=z#hash_value")
+        val u1 = URI.parse("https://test.user@subdomain.domain.com:8080/my/path/../to/file.htm?name=u&other=z#hash_value")
 
         Assertions.assertTrue(u1 is HttpURL)
 
@@ -16,10 +16,11 @@ internal class URITest {
             Assertions.assertEquals("test.user", u1.userinfo, "userinfo")
             Assertions.assertEquals("subdomain.domain.com", u1.host, "host")
             Assertions.assertEquals(8080, u1.port, "port")
-            Assertions.assertEquals("/my/path/to/file.htm", u1.path.complete, "path")
+            Assertions.assertEquals("/my/path/../to/file.htm", u1.path.complete, "path")
             Assertions.assertEquals("name=u&other=z", u1.query, "query")
             Assertions.assertEquals("hash_value", u1.fragment, "fragment")
         }
+
 
         val u2 = URI.parse("https://test.user@subdomain.domain.com#hash_value")
 
@@ -127,7 +128,7 @@ internal class URITest {
         if (u is ContextURI) {
             val m2 = u.resolve(m)
 
-            Assertions.assertEquals(m,  m2)
+            Assertions.assertEquals(m, m2)
 
             println(m2.toString())
         }
