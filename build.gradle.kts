@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.oxyggen.net"
-version = "1.0.4"
+version = "1.0.6"
 
 
 repositories {
