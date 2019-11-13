@@ -69,8 +69,8 @@ internal class URITest {
             Assertions.assertEquals("", u5.userinfo, "userinfo")
             Assertions.assertEquals("subdomain.domain.com", u5.host, "host")
             Assertions.assertEquals(80, u5.port, "port")
-            Assertions.assertEquals("/", u5.path.complete, "path")
-            Assertions.assertEquals("test=c d", u5.query, "query")
+            Assertions.assertEquals("./", u5.path.complete, "path")
+            Assertions.assertEquals("", u5.query, "query")
             Assertions.assertEquals("", u5.fragment, "fragment")
         }
 
