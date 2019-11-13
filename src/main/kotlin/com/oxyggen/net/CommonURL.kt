@@ -15,6 +15,10 @@ open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriSt
     val query: String
     val fragment: String
 
+    /**
+     * The default port for current scheme (http = 80, https = 443,...)
+     * @return the default port
+     */
     protected open fun getDefaultPort() = -1
 
     init {
@@ -50,6 +54,10 @@ open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriSt
         fragment = percentDecode(match?.groups?.get("fragment")?.value ?: "")
     }
 
+    /**
+     * The normalized Uri string
+     * @return the normalized Uri string
+     */
     open fun toNormalizedUriString(): String {
         // Scheme
         var result = "$scheme://"
@@ -78,9 +86,10 @@ open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriSt
         return result
     }
 
-    open val normalized: CommonURL by lazy {
-        parse(toNormalizedUriString()) as CommonURL
-    }
-
+    /**
+     * The CommonURL object containing normalized path
+     * @return the CommonURL object containing normalized path
+     */
+    open fun toNormalizedURL() = parse(toNormalizedUriString()) as CommonURL
 
 }
