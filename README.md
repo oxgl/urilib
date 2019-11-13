@@ -110,5 +110,11 @@ After parsing you can test the uri type:
     ...
  }
 ```
-
+There are few methods to convert URI to string (depends on class hierarchy):
+```
+toString()              -> returns object info: Object@xxx (Uri)
+toUriString()           -> returns the original URI (in case of relative URI: ./index.html)
+toResolvedUriString()   -> returns resolved URI (./index.html in context test.com is test.com/index.html)
+toNormalizedUriString() -> returns normalized, resolved URI string 
+```
 oxgl

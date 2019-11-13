@@ -1,3 +1,5 @@
 package com.oxyggen.net
 
-open class ResolvedURI(uriString: String, context: ContextURI? = null) : URI(uriString, context)
+abstract class ResolvedURI(uriString: String, context: ContextURI? = null) : URI(uriString, context) {
+    abstract fun toResolvedUriString():String
+}

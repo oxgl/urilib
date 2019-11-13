@@ -61,6 +61,18 @@ internal class URITest {
             Assertions.assertEquals("", u4.fragment, "fragment")
         }
 
+        val u5 = URI.parse("./", u4 as ContextURI)
+
+        Assertions.assertTrue(u5 is HttpURL)
+        if (u5 is CommonURL) {
+            Assertions.assertEquals("http", u5.scheme, "scheme")
+            Assertions.assertEquals("", u5.userinfo, "userinfo")
+            Assertions.assertEquals("subdomain.domain.com", u5.host, "host")
+            Assertions.assertEquals(80, u5.port, "port")
+            Assertions.assertEquals("/", u5.path.complete, "path")
+            Assertions.assertEquals("test=c d", u5.query, "query")
+            Assertions.assertEquals("", u5.fragment, "fragment")
+        }
 
     }
 
