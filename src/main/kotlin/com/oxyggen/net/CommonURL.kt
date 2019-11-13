@@ -49,7 +49,14 @@ open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriSt
             }
         }
 
-        path = Path.parse(percentDecode(match?.groups?.get("path")?.value ?: ""))
+        val foundPath = Path.parse(percentDecode(match?.groups?.get("path")?.value ?: ""))
+        path = if (foundPath.isAbsolute) {
+            foundPath
+        } else if (context is CommonURL) {
+            context.path.resolve(foundPath)
+        } else {
+            throw Exception("Can't handle relative path ${foundPath.complete} without context!")
+        }
         query = percentDecode(match?.groups?.get("query")?.value ?: "")
         fragment = percentDecode(match?.groups?.get("fragment")?.value ?: "")
     }

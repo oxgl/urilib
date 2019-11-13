@@ -61,18 +61,6 @@ internal class URITest {
             Assertions.assertEquals("", u4.fragment, "fragment")
         }
 
-        val u5 = URI.parse("./", u4 as ContextURI)
-
-        Assertions.assertTrue(u5 is HttpURL)
-        if (u5 is CommonURL) {
-            Assertions.assertEquals("http", u5.scheme, "scheme")
-            Assertions.assertEquals("", u5.userinfo, "userinfo")
-            Assertions.assertEquals("subdomain.domain.com", u5.host, "host")
-            Assertions.assertEquals(80, u5.port, "port")
-            Assertions.assertEquals("./", u5.path.complete, "path")
-            Assertions.assertEquals("", u5.query, "query")
-            Assertions.assertEquals("", u5.fragment, "fragment")
-        }
 
     }
 
@@ -115,6 +103,25 @@ internal class URITest {
                 Assertions.assertEquals("/different/path.htm", u2.path.complete, "path")
                 Assertions.assertEquals("param=x1", u2.query, "query")
             }
+        }
+    }
+
+    @Test
+    fun `Relative URL path parsing`() {
+        val u1 = URI.parse("http://subdomain.domain.com/abc/?test=c+d")
+
+        val u2 = URI.parse("test.html", u1 as ContextURI)
+
+        Assertions.assertTrue(u2 is HttpURL)
+        if (u2 is CommonURL) {
+            println(u2.toResolvedUriString())
+            Assertions.assertEquals("http", u2.scheme, "scheme")
+            Assertions.assertEquals("", u2.userinfo, "userinfo")
+            Assertions.assertEquals("subdomain.domain.com", u2.host, "host")
+            Assertions.assertEquals(80, u2.port, "port")
+            Assertions.assertEquals("/abc/test.html", u2.path.complete, "path")
+            Assertions.assertEquals("", u2.query, "query")
+            Assertions.assertEquals("", u2.fragment, "fragment")
         }
     }
 
