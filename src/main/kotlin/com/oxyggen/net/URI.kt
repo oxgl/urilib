@@ -69,7 +69,7 @@ open class URI(uriString: String, context: ContextURI? = null) {
             if (isRelative) {
                 schemeSpecificPart
             } else {
-                "$scheme:$schemeSpecificPart)"
+                "$scheme:$schemeSpecificPart"
             }
 
     companion object {
