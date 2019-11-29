@@ -1,7 +1,5 @@
 package com.oxyggen.io
 
-import java.nio.file.FileSystems
-
 /**
  * Path object
  *
@@ -16,7 +14,7 @@ open class Path protected constructor(
         val pathSeparator: String = "/") {
 
     companion object {
-        const val PATH_SEPARATOR = "/"
+        private const val DEFAULT_PATH_SEPARATOR = "/"
         const val FILE_EXTENSION_SEPARATOR = "."
         const val DIRECTORY_CURRENT = "."
         const val DIRECTORY_PARENT = ".."
@@ -27,7 +25,7 @@ open class Path protected constructor(
          * Empty path is same as root path: "/". Relative path to current directory should be "."
          * @return the new path object
          **/
-        fun parse(path: String, pathSeparator: String = PATH_SEPARATOR): Path {
+        fun parse(path: String, pathSeparator: String = DEFAULT_PATH_SEPARATOR): Path {
             var device = ""
             var file = ""
             var isAbsolute = false

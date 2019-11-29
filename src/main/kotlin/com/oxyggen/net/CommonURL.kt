@@ -3,17 +3,40 @@ package com.oxyggen.net
 import com.oxyggen.io.Path
 
 // Common URL
-open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriString, context) {
+open class CommonURL(uriString: String, val context: ContextURI? = null) : URL(uriString, context) {
 
-    private val pattern = "^((?<scheme>[^:/?#]+):)?(//(?<authority>((?<userinfo>[^/?#]*)@)?(?<host>[^/?#:]*)(:(?<port>[^/?#]*))?))?(?<path>[^?#]*)(\\?(?<query>[^#]*))?(#(?<fragment>.*))?".toRegex()
+    private val schemeSpecificPartPattern = "^?(//(?<authority>((?<userinfo>[^/?#]*)@)?(?<host>[^/?#:]*)(:(?<port>[^/?#]*))?))?(?<path>[^?#]*)(\\?(?<query>[^#]*))?(#(?<fragment>.*))?".toRegex()
+
+    // Pointers in schemeSpecificPart
+    private val userInfoRange: IntRange?
+    private val hostRange: IntRange?
+    private val pathRange: IntRange?
+    private val queryRange: IntRange?
+    private val fragmentRange: IntRange?
 
     val userinfo: String
+        get() = if (userInfoRange != null) {
+            schemeSpecificPart.substring(userInfoRange)
+        } else if (context is CommonURL) {
+            context.userinfo
+        } else {
+            ""
+        }
+
     val host: String
+        get() = if (hostRange != null) {
+            schemeSpecificPart.substring(hostRange)
+        } else if (context is CommonURL) {
+            context.host
+        } else {
+            ""
+        }
+
     val uriPort: Int
     val port: Int get() = if (uriPort > 0) uriPort else getDefaultPort()
+
     val path: Path
-    val query: String
-    val fragment: String
+
 
     /**
      * The default port for current scheme (http = 80, https = 443,...)
@@ -23,43 +46,44 @@ open class CommonURL(uriString: String, context: ContextURI? = null) : URL(uriSt
 
     init {
 
-        val match = pattern.matchEntire(uriString)
+        // Parse the scheme specific part
+        val match = schemeSpecificPartPattern.matchEntire(schemeSpecificPart)
+                ?: throw IllegalArgumentException("Can't parse $uriString")
 
-        if (match?.groups?.get("authority")?.value.isNullOrBlank()) {
+        // Save pointers to userInfo, host and port
+        if (match.groups.get("authority")?.value.isNullOrBlank()) {
             if (context is CommonURL) {
-                userinfo = context.userinfo
-                host = context.host
+                userInfoRange = null
+                hostRange = null
                 uriPort = context.uriPort
             } else {
-                throw Exception("Can't handle relative uri $uriString without context!")
+                throw IllegalArgumentException("Can't handle relative uri $uriString without context!")
             }
         } else {
-            userinfo = match?.groups?.get("userinfo")?.value ?: ""
-            host = match?.groups?.get("host")?.value ?: ""
-            val strPort = match?.groups?.get("port")?.value?.trim() ?: ""
-            val foundPort = if (strPort.isBlank()) {
-                0
-            } else {
-                strPort.toInt()
-            }
-            uriPort = if (foundPort > 0) {
-                foundPort
-            } else {
-                -1
-            }
+            userInfoRange = match.groups["userinfo"]?.range
+            hostRange = match.groups["host"]?.range
+            val strPort = match.groups["port"]?.value?.trim() ?: ""
+            uriPort = if (strPort.isNotBlank()) strPort.toInt() else -1
         }
 
-        val foundPath = Path.parse(percentDecode(match?.groups?.get("path")?.value ?: ""))
+        // Save pointers to path, query and fragment
+        pathRange = match.groups["path"]?.range
+        queryRange = match.groups["query"]?.range
+        fragmentRange = match.groups["fragment"]?.range
+
+        // We have to resolve the full path here in constructor, to check it's validness
+        val foundPath = Path.parse(percentDecode(if (pathRange != null) schemeSpecificPart.substring(pathRange) else ""))
         path = if (foundPath.isAbsolute) {
             foundPath
         } else if (context is CommonURL) {
             context.path.resolve(foundPath)
         } else {
-            throw Exception("Can't handle relative path ${foundPath.complete} without context!")
+            throw IllegalArgumentException("Can't handle relative path ${foundPath.complete} without context!")
         }
-        query = percentDecode(match?.groups?.get("query")?.value ?: "")
-        fragment = percentDecode(match?.groups?.get("fragment")?.value ?: "")
     }
+
+    val query: String by lazy { if (queryRange != null) percentDecode(schemeSpecificPart.substring(queryRange)) else "" }
+    val fragment: String by lazy { if (fragmentRange != null) percentDecode(schemeSpecificPart.substring(fragmentRange)) else "" }
 
 
     /**
