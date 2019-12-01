@@ -86,11 +86,7 @@ open class CommonURL(uriString: String, val context: ContextURI? = null) : URL(u
     val fragment: String by lazy { if (fragmentRange != null) percentDecode(schemeSpecificPart.substring(fragmentRange)) else "" }
 
 
-    /**
-     * Full, resolved URI string
-     * @return resolved Uri string
-     */
-    override fun toResolvedUriString(): String {
+    private fun toUriStringInternal(normalized: Boolean = false): String {
         // Scheme
         var result = "$scheme://"
 
@@ -104,53 +100,34 @@ open class CommonURL(uriString: String, val context: ContextURI? = null) : URL(u
         if (getDefaultPort() != port)
             result += ":$port"
 
-        // Normalized path
-        result += path.complete
+        // Normalized path or the complete path
+        if (normalized)
+            result += percentEncode(path.normalized.complete)
+        else
+            result += percentEncode(path.complete)
 
         // Query
         if (query.isNotEmpty())
-            result += "?$query"
+            result += "?" + percentEncode(query)
 
         // Fragment
         if (fragment.isNotEmpty())
-            result += "#$fragment"
+            result += "#" + percentEncode(fragment)
 
         return result
     }
 
+    /**
+     * Full, resolved URI string
+     * @return resolved Uri string
+     */
+    override fun toResolvedUriString(): String = toUriStringInternal(false)
 
     /**
      * The normalized Uri string
      * @return the normalized Uri string
      */
-    open fun toNormalizedUriString(): String {
-        // Scheme
-        var result = "$scheme://"
-
-        // User info (if exists)
-        if (userinfo.isNotEmpty()) result += "$userinfo@"
-
-        // Host (always)
-        result += host
-
-        // Port only when it's not the defualt port
-        if (getDefaultPort() != port)
-            result += ":$port"
-
-        // Normalized path
-        result += path.normalized.complete
-
-        // Query
-        if (query.isNotEmpty())
-            result += "?$query"
-
-        // Fragment
-        if (fragment.isNotEmpty())
-            result += "#$fragment"
-
-        return result
-    }
-
+    open fun toNormalizedUriString(): String = toUriStringInternal(true)
 
     /**
      * The CommonURL object containing normalized path
