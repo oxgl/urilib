@@ -44,7 +44,7 @@ internal class URITest {
             Assertions.assertEquals("subdomain.domain.com", u3.host, "host")
             Assertions.assertEquals(81, u3.port, "port")
             Assertions.assertEquals("/", u3.path.complete, "path")
-            Assertions.assertEquals("test=a b", u3.query, "query")
+            Assertions.assertEquals("test=a%20b", u3.query, "query")
             Assertions.assertEquals("", u3.fragment, "fragment")
         }
 
@@ -57,7 +57,7 @@ internal class URITest {
             Assertions.assertEquals("subdomain.domain.com", u4.host, "host")
             Assertions.assertEquals(80, u4.port, "port")
             Assertions.assertEquals("/", u4.path.complete, "path")
-            Assertions.assertEquals("test=c d", u4.query, "query")
+            Assertions.assertEquals("test=c+d", u4.query, "query")
             Assertions.assertEquals("", u4.fragment, "fragment")
         }
 
@@ -150,6 +150,17 @@ internal class URITest {
             Assertions.assertEquals(m, m2)
 
             println(m2.toString())
+        }
+
+    }
+
+    @Test
+    fun `HTTP URL parameters test`() {
+        val u = URI.parse("https://test.user@subdomain.domain.com:8080/my/path/to/file.htm?name=first&name=last&other=z#hash_value")
+
+        if (u is HttpURL) {
+            Assertions.assertEquals(u.queryParam["name"]?.first(), "first")
+            Assertions.assertEquals(u.queryParam["name"]?.get(1), "last")
         }
 
     }

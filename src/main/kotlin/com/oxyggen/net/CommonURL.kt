@@ -32,10 +32,17 @@ open class CommonURL(uriString: String, val context: ContextURI? = null) : URL(u
             ""
         }
 
+
     val uriPort: Int
-    val port: Int get() = if (uriPort > 0) uriPort else getDefaultPort()
+    val port: Int
+        get() = if (uriPort > 0) uriPort else getDefaultPort()
 
     val path: Path
+
+    val query: String
+        get() = if (queryRange != null) schemeSpecificPart.substring(queryRange) else ""
+    val fragment: String
+        get() = if (fragmentRange != null) schemeSpecificPart.substring(fragmentRange) else ""
 
 
     /**
@@ -72,7 +79,7 @@ open class CommonURL(uriString: String, val context: ContextURI? = null) : URL(u
         fragmentRange = match.groups["fragment"]?.range
 
         // We have to resolve the full path here in constructor, to check it's validness
-        val foundPath = Path.parse(percentDecode(if (pathRange != null) schemeSpecificPart.substring(pathRange) else ""))
+        val foundPath = Path.parse(if (pathRange != null) schemeSpecificPart.substring(pathRange) else "")
         path = if (foundPath.isAbsolute) {
             foundPath
         } else if (context is CommonURL) {
@@ -81,9 +88,6 @@ open class CommonURL(uriString: String, val context: ContextURI? = null) : URL(u
             throw IllegalArgumentException("Can't handle relative path ${foundPath.complete} without context!")
         }
     }
-
-    val query: String by lazy { if (queryRange != null) percentDecode(schemeSpecificPart.substring(queryRange)) else "" }
-    val fragment: String by lazy { if (fragmentRange != null) percentDecode(schemeSpecificPart.substring(fragmentRange)) else "" }
 
 
     private fun toUriStringInternal(normalized: Boolean = false): String {
@@ -102,17 +106,17 @@ open class CommonURL(uriString: String, val context: ContextURI? = null) : URL(u
 
         // Normalized path or the complete path
         if (normalized)
-            result += percentEncode(path.normalized.complete)
+            result += path.normalized.complete
         else
-            result += percentEncode(path.complete)
+            result += path.complete
 
         // Query
         if (query.isNotEmpty())
-            result += "?" + percentEncode(query)
+            result += "?$query"
 
         // Fragment
         if (fragment.isNotEmpty())
-            result += "#" + percentEncode(fragment)
+            result += "#$fragment"
 
         return result
     }
