@@ -3,11 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val junitVersion = "5.4.2"
 
 plugins {
-    kotlin("jvm") version "1.3.50"
+    kotlin("jvm") version "1.3.61"
 }
 
 group = "com.oxyggen.net"
-version = "1.0.10"
+version = "1.0.11"
 
 
 repositories {

@@ -1,6 +1,6 @@
 package com.oxyggen.matcher
 
-class GlobMatcher(globPattern: String) : RegexMatcher(globToRegexPattern(globPattern)) {
+class GlobMatcher(globPattern: String, ignoreCase: Boolean = true) : RegexMatcher(globToRegexPattern(globPattern), ignoreCase) {
 
     companion object {
         /**
