@@ -1,8 +1,8 @@
 package com.oxyggen.matcher
 
-open class RegexMatcher(regexPattern: String, ignoreCase: Boolean = true) : Matcher() {
+open class RegexMatcher(regexPattern: String, options: Set<RegexOption>) : Matcher() {
 
-    private val regex: Regex = Regex(regexPattern, if (ignoreCase) setOf(RegexOption.IGNORE_CASE) else setOf())
+    private val regex: Regex = Regex(regexPattern, options)
 
     open fun toRegex() = regex
 
